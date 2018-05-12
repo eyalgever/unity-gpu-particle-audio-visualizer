@@ -9,7 +9,8 @@ public class Emitter : MonoBehaviour {
 	public int range;
 	[ColorUsageAttribute(true,true,0f,8f,0.125f,3f)] 
 	public Color color;
-	public int spectrumSize = 256;
+	const int spectrumSize = 512;
+	const int freqBandSize = 8;
 	public float pointSize = 0.5f;
 
 	public float depthDebug = 0.5f;
@@ -73,14 +74,31 @@ public class Emitter : MonoBehaviour {
 			}
 		}
 
-		int[] Indexes = new int[UVs.Length];
-		for(var i = 0; i< UVs.Length; i++) Indexes[i] = i;
+		
 
 		Mesh _m = new Mesh();
 		_m.vertices = Vertices;
 		_m.uv = UVs;
-		_m.SetIndices(Indexes, MeshTopology.Points, 0);
-//		_m.SetIndices(Indexes, MeshTopology.LineStrip, 0);
+		_m.subMeshCount = BufferHeight;
+
+		int[] Indexes = new int[BufferWidth];
+
+		int cnt = 0;
+		for(var i = 0; i< BufferHeight; i++){
+			for(var k = 0; k< BufferWidth; k++){
+				Indexes[k] = cnt;
+				cnt++;
+			}
+			_m.SetIndices(Indexes, MeshTopology.LineStrip,i);
+		}
+			
+		
+
+		// _m.SetIndices(Indexes, MeshTopology.Points, 0);
+		
+
+
+
 		_m.bounds = new Bounds(Vector3.zero, Vector3.one * 1000);
 		return _m;
 	}
@@ -110,7 +128,7 @@ public class Emitter : MonoBehaviour {
 
 		_particleBuffer = CreateBuffer();
 		_particleBuffer2 = CreateBuffer();
-		spectrumBuffer = new Texture2D( spectrumSize, 1) ;
+		spectrumBuffer = new Texture2D( freqBandSize, 1) ;
 
 		if(!_kernelMaterial) _kernelMaterial = CreateMaterial(_kernelShader);
 		if(!_particleMaterial) _particleMaterial = CreateMaterial(_particleShader);
@@ -128,11 +146,29 @@ public class Emitter : MonoBehaviour {
 		
 		float[] spectrum = new float[spectrumSize]; 
 		AudioListener.GetSpectrumData(spectrum, 0, FFTWindow.Triangle);
-		for(int i = 0; i < spectrumSize; i++){
-			float val = spectrum[i] * 50f;			
+
+		for(int i = 0; i <spectrumSize; i++){
+			float val = spectrum[i];			
 			spectrumBuffer.SetPixel(i, 0, new Color(val,val,val,1.0f));			
 		}		
 		spectrumBuffer.Apply();
+
+
+		float[] _freqBand = new float [freqBandSize];
+		int count = 0;
+		for( int i = 0; i< _freqBand.Length; i++){
+			
+			int sampleCount = (int)Mathf.Pow(2,i)*2;
+			if(i==7) sampleCount += 2;
+
+			for( int k = 0; k< sampleCount; k++){
+				_freqBand[i] += spectrum[count] * (count + 1);
+				count++;
+			}
+			_freqBand[i] = _freqBand[i] / count * 10f; 
+		}
+
+		
 
 		for (int i = 1; i < spectrum.Length - 1; i++)
         {
@@ -147,7 +183,15 @@ public class Emitter : MonoBehaviour {
 		m.SetFloat("_Range", range);
 		m.SetVector("_NoiseParams", new Vector4(0,0,0,0));
 		m.SetFloat("_TimeSpan",Time.deltaTime);
+		m.SetFloat("_TimeTotal", Time.time*0.5f);
 		m.SetTexture("_Spectrum", spectrumBuffer);
+		m.SetVector("_Freq", new Vector4(
+			(_freqBand[0] + _freqBand[1]+ _freqBand[2])/3,
+			(_freqBand[3] + _freqBand[4]+ _freqBand[5])/3,
+			(_freqBand[6] + _freqBand[7])/2,
+			0
+		));
+		
 
 		var temp = _particleBuffer;
 		_particleBuffer = _particleBuffer2;

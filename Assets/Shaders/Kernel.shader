@@ -2,9 +2,11 @@
 	Properties {
 		_MainTex ("-", 2D) = "" {}
 		_Spectrum("-", 2D) = ""{}
+		_Freq ("-", Vector) = (1,1,1, 1)
 		_Range("-", Float) = 10
-		_NoiseParams("-", Vector) = (0.2, 0.1, 1) // (frequency, amplitude, animation)		
+		_NoiseParams("-", Vector) = (0.2, 0.1, 1, 0) // (frequency, amplitude, animation)		
 		_TimeSpan("-", Float) = 0
+		_TimeTotal("-", Float) = 0
 	}
 
 	CGINCLUDE
@@ -20,6 +22,8 @@
 	float4 _NoiseParams;
 	float _Range;
 	float _TimeSpan;
+	float4 _Freq;
+	float _TimeTotal;
 
 	float4 new_particle(float2 uv){
 		return float4( uv.x * _Range - _Range/2 , 0  , uv.y *_Range - _Range/2 , 0);
@@ -38,14 +42,21 @@
 		float3 pos = p.xyz;
 		float velocity = p.w;
 
-		float newforce = tex2D(_Spectrum, float2( sqrt( pow(i.uv.x -0.5, 2) + pow(i.uv.y - 0.5, 2) ), 0 ) ).x;
+		// float newforce = tex2D(_Spectrum, float2( sqrt( pow(i.uv.x -0.5, 2) + pow(i.uv.y - 0.5, 2) ), 0 ) ).x;
 
-		if(newforce > 0){
-			pos.y = pos.y + newforce;
-		}
-		if(pos.y > 3.5){
-			pos.y = 3.5;
-		}
+		// if(newforce > 0){
+		// 	pos.y = pos.y + newforce * 0.5;
+		// }
+
+		float noiseCurrentX = abs(cnoise( float3(pos.x*2, pos.z*2, _TimeTotal)) );
+		pos.y += noiseCurrentX * 0.4 * _Freq.x * 0.15;	
+
+		float noiseCurrentY = abs(cnoise( float3(pos.x, pos.z, _TimeTotal)) );
+		pos.y += noiseCurrentY * 0.15 *  _Freq.y * 0.1;	
+
+		float noiseCurrentZ = abs(cnoise( float3(pos.x*0.5, pos.z*0.5, _TimeTotal)) );
+		pos.y += noiseCurrentZ * 0.15 * _Freq.z * 0.12;	
+		
 
 		float gravity = 9.8;		
 		pos.y = pos.y - velocity * _TimeSpan - 0.5 * gravity * pow(_TimeSpan,2); 
@@ -55,23 +66,12 @@
 			pos.y = 0;
 			velocity = 0;
 		}
+
 		return float4( i.uv.x * _Range - _Range/2 , pos.y  , i.uv.y *_Range - _Range/2 , velocity);
 
+		
 
 
-		// float noise = cnoise(p);
-		// p.xy *= 0.5;
-		// noise += cnoise(p) * 0.5 ;
-		// p.xy *= 0.5f;
-		// noise += cnoise(p) * 0.25;
-		// p.xy *= 0.5f;
-		// noise += cnoise(p) * 0.125;
-		// p.xy *= 0.5f;
-		// noise += cnoise(p) * 0.0625;
-		// p.xy *= 0.5f;
-		// noise += cnoise(p) * 0.03125;
-
-		// return float4( uv.x * _Range - _Range/2 , noise  , uv.y *_Range - _Range/2 , 1);
 	}
 
 	ENDCG
