@@ -15,6 +15,11 @@ public class Emitter : MonoBehaviour {
 
 	public float depthDebug = 0.5f;
 
+	public float noiseFreq = 0;
+	public float noiseAmp = 0;
+
+	public float noiseAnim = 0;
+
 
 	
 	[SerializeField] Shader _kernelShader;
@@ -158,13 +163,13 @@ public class Emitter : MonoBehaviour {
 				_freqBand[i] += spectrum[count] * (count + 1);
 				count++;
 			}
-			_freqBand[i] = _freqBand[i] / count; 
+			_freqBand[i] = _freqBand[i] / count * 2; 
 		}			
 
 
 		var m = _kernelMaterial;
 		m.SetFloat("_Range", range);
-		m.SetVector("_NoiseParams", new Vector4(0,0,0,0));
+		m.SetVector("_NoiseParams", new Vector4(noiseFreq ,noiseAmp,noiseAnim,0));
 		m.SetFloat("_TimeSpan",Time.deltaTime);
 		m.SetFloat("_TimeTotal", Time.time*0.5f);
 		m.SetTexture("_Spectrum", spectrumBuffer);

@@ -4,7 +4,7 @@
 		_Spectrum("-", 2D) = ""{}
 		_Freq ("-", Vector) = (1,1,1, 1)
 		_Range("-", Float) = 10
-		_NoiseParams("-", Vector) = (0.2, 0.1, 1, 0) // (frequency, amplitude, animation)		
+		_NoiseParams("-", Vector) = (0.2, 0.1, 1, 0) // (frequency, amplitude)		
 		_TimeSpan("-", Float) = 0
 		_TimeTotal("-", Float) = 0
 	}
@@ -37,7 +37,11 @@
 
 
 	float4 frag_update(v2f_img i) : SV_Target
-	{
+	{	
+
+		float x = i.uv.x * _Range - _Range/2;
+		float z =  i.uv.y *_Range - _Range/2;
+
 		float4 p = tex2D(_MainTex, i.uv);
 		float3 pos = p.xyz;
 		float velocity = p.w;
@@ -48,14 +52,14 @@
 		// 	pos.y = pos.y + newforce * 0.5;
 		// }
 
-		float noiseCurrentX = abs(cnoise( float3(pos.x*2, pos.z*2, _TimeTotal)) );
-		pos.y += noiseCurrentX * 0.4 * _Freq.x;	
+		// float noiseCurrentX = cnoise( float3( x * _NoiseParams.x , z * _NoiseParams.x , _TimeTotal * _NoiseParams.z)) +1 ;
+		// pos.y += noiseCurrentX  * _Freq.x * _NoiseParams.y;	
 
-		float noiseCurrentY = abs(cnoise( float3(pos.x, pos.z, _TimeTotal)) );
-		pos.y += noiseCurrentY * 0.15 *  _Freq.y;	
+		// float noiseCurrentY = cnoise( float3( x * _NoiseParams.x ,  z * _NoiseParams.x , _TimeTotal * _NoiseParams.z)) +1;
+		// pos.y += noiseCurrentY  *  _Freq.y * _NoiseParams.y;	
 
-		float noiseCurrentZ = abs(cnoise( float3(pos.x*0.5, pos.z*0.5, _TimeTotal)) );
-		pos.y += noiseCurrentZ * 0.15 * _Freq.z;	
+		float noiseCurrentZ = cnoise( float3( x * _NoiseParams.x  , z * 1.25 * _NoiseParams.x  , _TimeTotal * _NoiseParams.z) ) ;
+		pos.y += abs( noiseCurrentZ ) * _Freq.x  * _NoiseParams.y;	
 		
 
 		float gravity = 9.8;		
@@ -67,8 +71,8 @@
 			velocity = 0;
 		}
 
-		return float4( i.uv.x * _Range - _Range/2 , pos.y  , i.uv.y *_Range - _Range/2 , velocity);
-
+		// return float4( i.uv.x * _Range - _Range/2 , pos.y  , i.uv.y *_Range - _Range/2 , velocity);
+		return float4( x , pos.y , z , velocity);
 		
 
 
