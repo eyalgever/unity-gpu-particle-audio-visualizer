@@ -49,13 +49,13 @@
 		// }
 
 		float noiseCurrentX = abs(cnoise( float3(pos.x*2, pos.z*2, _TimeTotal)) );
-		pos.y += noiseCurrentX * 0.4 * _Freq.x * 0.15;	
+		pos.y += noiseCurrentX * 0.4 * _Freq.x;	
 
 		float noiseCurrentY = abs(cnoise( float3(pos.x, pos.z, _TimeTotal)) );
-		pos.y += noiseCurrentY * 0.15 *  _Freq.y * 0.1;	
+		pos.y += noiseCurrentY * 0.15 *  _Freq.y;	
 
 		float noiseCurrentZ = abs(cnoise( float3(pos.x*0.5, pos.z*0.5, _TimeTotal)) );
-		pos.y += noiseCurrentZ * 0.15 * _Freq.z * 0.12;	
+		pos.y += noiseCurrentZ * 0.15 * _Freq.z;	
 		
 
 		float gravity = 9.8;		

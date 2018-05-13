@@ -91,13 +91,6 @@ public class Emitter : MonoBehaviour {
 			}
 			_m.SetIndices(Indexes, MeshTopology.LineStrip,i);
 		}
-			
-		
-
-		// _m.SetIndices(Indexes, MeshTopology.Points, 0);
-		
-
-
 
 		_m.bounds = new Bounds(Vector3.zero, Vector3.one * 1000);
 		return _m;
@@ -165,18 +158,8 @@ public class Emitter : MonoBehaviour {
 				_freqBand[i] += spectrum[count] * (count + 1);
 				count++;
 			}
-			_freqBand[i] = _freqBand[i] / count * 10f; 
-		}
-
-		
-
-		for (int i = 1; i < spectrum.Length - 1; i++)
-        {
-            Debug.DrawLine(new Vector3(i - 1, spectrum[i] + 10, 0), new Vector3(i, spectrum[i + 1] + 10, 0), Color.red);
-            Debug.DrawLine(new Vector3(i - 1, Mathf.Log(spectrum[i - 1]) + 10, 2), new Vector3(i, Mathf.Log(spectrum[i]) + 10, 2), Color.cyan);
-            Debug.DrawLine(new Vector3(Mathf.Log(i - 1), spectrum[i - 1] - 10, 1), new Vector3(Mathf.Log(i), spectrum[i] - 10, 1), Color.green);
-            Debug.DrawLine(new Vector3(Mathf.Log(i - 1), Mathf.Log(spectrum[i - 1]), 3), new Vector3(Mathf.Log(i), Mathf.Log(spectrum[i]), 3), Color.blue);
-        }
+			_freqBand[i] = _freqBand[i] / count; 
+		}			
 
 
 		var m = _kernelMaterial;
@@ -204,7 +187,10 @@ public class Emitter : MonoBehaviour {
 		_particleMaterial.SetColor("_Color", color);
 		_particleMaterial.SetFloat ("_Size", pointSize);
 		_particleMaterial.SetFloat ("_Depth", depthDebug);
-		Graphics.DrawMesh(_mesh, transform.position, transform.rotation, _particleMaterial, 0);
+
+		for (int i = 0; i < BufferHeight; i++) {
+			Graphics.DrawMesh(_mesh, transform.position, transform.rotation, _particleMaterial, 0, null, i);	
+		}
 
 	}
 
