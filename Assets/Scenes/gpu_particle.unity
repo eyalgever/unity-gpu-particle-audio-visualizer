@@ -26,7 +26,7 @@ RenderSettings:
   m_AmbientIntensity: 1
   m_AmbientMode: 0
   m_SubtractiveShadowColor: {r: 0.42, g: 0.478, b: 0.627, a: 1}
-  m_SkyboxMaterial: {fileID: 2100000, guid: aa17438790c4c0e409ef432959470d1a, type: 2}
+  m_SkyboxMaterial: {fileID: 0}
   m_HaloStrength: 0.5
   m_FlareStrength: 1
   m_FlareFadeSpeed: 3
@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 943476784}
-  m_IndirectSpecularColor: {r: 0.026018355, g: 0.013230028, b: 0.009704404, a: 1}
+  m_IndirectSpecularColor: {r: 0, g: 0, b: 0, a: 1}
 --- !u!157 &3
 LightmapSettings:
   m_ObjectHideFlags: 0
@@ -113,47 +113,6 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
---- !u!1 &852596637
-GameObject:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  serializedVersion: 5
-  m_Component:
-  - component: {fileID: 852596639}
-  - component: {fileID: 852596638}
-  m_Layer: 0
-  m_Name: MeshCreator
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 0
---- !u!114 &852596638
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 852596637}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 36f448d36f1e2974f88cf9e4bbe3b42f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  mat: {fileID: 2100000, guid: 4a06e313bbec64f47a61aff8cac677f6, type: 2}
---- !u!4 &852596639
-Transform:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 852596637}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_RootOrder: 4
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &930493961
 GameObject:
   m_ObjectHideFlags: 0
@@ -279,11 +238,11 @@ MonoBehaviour:
   range: 50
   color: {r: 0.8986029, g: 0.9967451, b: 1.111, a: 1}
   pointSize: 0.012
-  noiseFreq: 0.1
-  noiseAmp: 0.55
-  noiseAnim: 0.88
+  noiseFreq: 0.18
+  noiseAmp: 0.45
+  noiseAnim: 1
   debug: 0
-  _particleType: 1
+  _particleType: 0
   _kernelShader: {fileID: 4800000, guid: 961faab37f81427408382cf1700ff762, type: 3}
   _particleDotsShader: {fileID: 4800000, guid: 20b062b2c347f154e9ede9eb0fb68bfb, type: 3}
   _particleLinesShader: {fileID: 4800000, guid: ba14fa1a4c425406b99a1696cab21952,
