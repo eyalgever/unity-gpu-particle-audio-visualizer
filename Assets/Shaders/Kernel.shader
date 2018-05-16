@@ -1,8 +1,7 @@
 ﻿Shader "Custom/Kernel" {
 	Properties {
 		_MainTex ("-", 2D) = "" {}
-		_Spectrum("-", 2D) = ""{}
-		_Freq ("-", Vector) = (1,1,1, 1)
+		_Freq ("-", Vector) = (1,1,1,1)
 		_Range("-", Float) = 10
 		_NoiseParams("-", Vector) = (0.2, 0.1, 1, 0) // (frequency, amplitude)		
 		_TimeSpan("-", Float) = 0
@@ -12,7 +11,7 @@
 	CGINCLUDE
 
 	
-	#pragma multi_compile NOISE_OFF NOISE_ON
+	// #pragma multi_compile NOISE_OFF NOISE_ON
 
 	#include "UnityCG.cginc"
 	#include "ClassicNoise3D.cginc"
@@ -38,44 +37,30 @@
 
 	float4 frag_update(v2f_img i) : SV_Target
 	{	
+		float4 p = tex2D(_MainTex, i.uv); // xyz position, w velocity positive for upward
 
-		float x = i.uv.x * _Range - _Range/2;
-		float z =  i.uv.y *_Range - _Range/2;
+		float noiseCurrentX = cnoise( float3( p.x * 2 * _NoiseParams.x  , p.z * 2.5 * _NoiseParams.x  , _TimeTotal * _NoiseParams.z) ) ;
+		float noiseCurrentY = cnoise( float3( p.x * _NoiseParams.x  , p.z * 1.25 * _NoiseParams.x  , _TimeTotal * _NoiseParams.z) ) ;
+		float noiseCurrentZ = cnoise( float3( p.x * 0.5 * _NoiseParams.x  , p.z * 0.625 * _NoiseParams.x  , _TimeTotal * _NoiseParams.z) ) ;
 
-		float4 p = tex2D(_MainTex, i.uv);
-		float3 pos = p.xyz;
-		float velocity = p.w;
+		p.y += abs( noiseCurrentX ) * _Freq.x  * _NoiseParams.y;
+		p.y += abs( noiseCurrentY ) * _Freq.y  * _NoiseParams.y;
+		p.y += abs( noiseCurrentZ ) * _Freq.z  * _NoiseParams.y;
 
-		// float newforce = tex2D(_Spectrum, float2( sqrt( pow(i.uv.x -0.5, 2) + pow(i.uv.y - 0.5, 2) ), 0 ) ).x;
-
-		// if(newforce > 0){
-		// 	pos.y = pos.y + newforce * 0.5;
-		// }
-
-		// float noiseCurrentX = cnoise( float3( x * _NoiseParams.x , z * _NoiseParams.x , _TimeTotal * _NoiseParams.z)) +1 ;
-		// pos.y += noiseCurrentX  * _Freq.x * _NoiseParams.y;	
-
-		// float noiseCurrentY = cnoise( float3( x * _NoiseParams.x ,  z * _NoiseParams.x , _TimeTotal * _NoiseParams.z)) +1;
-		// pos.y += noiseCurrentY  *  _Freq.y * _NoiseParams.y;	
-
-		float noiseCurrentZ = cnoise( float3( x * _NoiseParams.x  , z * 1.25 * _NoiseParams.x  , _TimeTotal * _NoiseParams.z) ) ;
-		pos.y += abs( noiseCurrentZ ) * _Freq.x  * _NoiseParams.y;	
+		// p.w += abs( noiseCurrentX ) * _Freq.x * _TimeSpan  * _NoiseParams.y ;
+		// p.w += abs( noiseCurrentY ) * _Freq.y * _TimeSpan  * _NoiseParams.y ;
+		// p.w += abs( noiseCurrentZ ) * _Freq.z * _TimeSpan  * _NoiseParams.y ;
 		
 
 		float gravity = 9.8;		
-		pos.y = pos.y - velocity * _TimeSpan - 0.5 * gravity * pow(_TimeSpan,2); 
-		velocity = velocity + gravity * _TimeSpan;
+		p.y += p.w * _TimeSpan - 0.5 * gravity * pow(_TimeSpan,2); 
+		p.w -= gravity * _TimeSpan;
 
-		if(pos.y < 0){
-			pos.y = 0;
-			velocity = 0;
+		if(p.y < 0){
+			p.y = 0;
+			p.w = 0;
 		}
-
-		// return float4( i.uv.x * _Range - _Range/2 , pos.y  , i.uv.y *_Range - _Range/2 , velocity);
-		return float4( x , pos.y , z , velocity);
-		
-
-
+		return p;
 	}
 
 	ENDCG

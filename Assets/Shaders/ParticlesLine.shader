@@ -6,7 +6,6 @@ Shader "Custom/ParticlesLine" {
 		_ParticleTex ("-", 2D) = "" {}
 		[HDR] _Color("-", Color) = (1, 1, 1, 1)
 		_Size ("-", Float) = 0.5
-		_Depth ("-", Float) = 0.5
 	}
 
 
@@ -49,7 +48,6 @@ Shader "Custom/ParticlesLine" {
 			float4 _ParticleTex_TexelSize;
 			half4 _Color;
 			float _Size;
-			float _Depth;
 
 
 			// vertex shader
@@ -75,7 +73,7 @@ Shader "Custom/ParticlesLine" {
 			{	
 				fs_output fo;
 				fo.color = i.color;
-				fo.depth = i.depth.x/i.depth.y * _Depth;
+				fo.depth = i.depth.x/i.depth.y;
 				return fo;
 			}
 			ENDCG
@@ -117,7 +115,6 @@ Shader "Custom/ParticlesLine" {
 			float4 _ParticleTex_TexelSize;
 			half4 _Color;
 			float _Size;
-			float _Depth;
 
 
 			// vertex shader
@@ -143,7 +140,7 @@ Shader "Custom/ParticlesLine" {
 			{	
 				fs_output fo;
 				fo.color = i.color;
-				fo.depth = i.depth.x/i.depth.y * _Depth;
+				fo.depth = i.depth.x/i.depth.y;
 				return fo;
 			}
 			ENDCG

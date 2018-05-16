@@ -13,19 +13,38 @@ public class Emitter : MonoBehaviour {
 	const int freqBandSize = 8;
 	public float pointSize = 0.5f;
 
-	public float depthDebug = 0.5f;
 
 	public float noiseFreq = 0;
 	public float noiseAmp = 0;
-
 	public float noiseAnim = 0;
 
+	public bool debug = false;
 
+	public enum ParticleType { LINES, DOTS };
+	
+	[SerializeField]
+	ParticleType _particleType;
+	public ParticleType particleType {
+		get{ return _particleType; }
+
+		set {
+			Debug.Log("Changing Type!");
+			_particleType = value;
+			if(_particleMaterial) DestroyImmediate(_particleMaterial);
+
+			if( _particleType == ParticleType.DOTS){
+				_particleMaterial = CreateMaterial(_particleDotsShader);
+			}else{
+				_particleMaterial = CreateMaterial(_particleLinesShader);
+			}
+		}
+		
+	}
 	
 	[SerializeField] Shader _kernelShader;
-	[SerializeField] Shader _particleShader;
+	[SerializeField] Shader _particleDotsShader;
+	[SerializeField] Shader _particleLinesShader;
 	[SerializeField] Shader _debugShader;
-	[SerializeField] Shader _debugSpectrumShader;
 
 	#endregion
 
@@ -129,9 +148,14 @@ public class Emitter : MonoBehaviour {
 		spectrumBuffer = new Texture2D( freqBandSize, 1) ;
 
 		if(!_kernelMaterial) _kernelMaterial = CreateMaterial(_kernelShader);
-		if(!_particleMaterial) _particleMaterial = CreateMaterial(_particleShader);
+
+		if( particleType == ParticleType.DOTS){
+			_particleMaterial = CreateMaterial(_particleDotsShader);
+		}else{
+			_particleMaterial = CreateMaterial(_particleLinesShader);
+		}
+
 		if(!_debugMaterial) _debugMaterial = CreateMaterial(_debugShader);
-		if(!_debugSpectrumMaterial) _debugSpectrumMaterial = CreateMaterial(_debugSpectrumShader);
 
 		var m = _kernelMaterial;
 		m.SetFloat("_Range", range);
@@ -144,13 +168,6 @@ public class Emitter : MonoBehaviour {
 		
 		float[] spectrum = new float[spectrumSize]; 
 		AudioListener.GetSpectrumData(spectrum, 0, FFTWindow.Triangle);
-
-		for(int i = 0; i <spectrumSize; i++){
-			float val = spectrum[i];			
-			spectrumBuffer.SetPixel(i, 0, new Color(val,val,val,1.0f));			
-		}		
-		spectrumBuffer.Apply();
-
 
 		float[] _freqBand = new float [freqBandSize];
 		int count = 0;
@@ -166,13 +183,18 @@ public class Emitter : MonoBehaviour {
 			_freqBand[i] = _freqBand[i] / count * 2; 
 		}			
 
+		for(int i = 0; i <freqBandSize; i++){
+			float val = _freqBand[i];			
+			spectrumBuffer.SetPixel(i, 0, new Color(val,val,val,1.0f));			
+		}		
+		spectrumBuffer.Apply();
+
 
 		var m = _kernelMaterial;
 		m.SetFloat("_Range", range);
 		m.SetVector("_NoiseParams", new Vector4(noiseFreq ,noiseAmp,noiseAnim,0));
 		m.SetFloat("_TimeSpan",Time.deltaTime);
-		m.SetFloat("_TimeTotal", Time.time*0.5f);
-		m.SetTexture("_Spectrum", spectrumBuffer);
+		m.SetFloat("_TimeTotal", Time.time);
 		m.SetVector("_Freq", new Vector4(
 			(_freqBand[0] + _freqBand[1]+ _freqBand[2])/3,
 			(_freqBand[3] + _freqBand[4]+ _freqBand[5])/3,
@@ -185,13 +207,12 @@ public class Emitter : MonoBehaviour {
 		_particleBuffer = _particleBuffer2;
 		_particleBuffer2 = temp;
 
-		Graphics.Blit(_particleBuffer , _particleBuffer2, _kernelMaterial, 1);	
+		Graphics.Blit(_particleBuffer2 , _particleBuffer, _kernelMaterial, 1);	
 
 		// set particle material parameters and render
 		_particleMaterial.SetTexture("_ParticleTex", _particleBuffer);
 		_particleMaterial.SetColor("_Color", color);
 		_particleMaterial.SetFloat ("_Size", pointSize);
-		_particleMaterial.SetFloat ("_Depth", depthDebug);
 
 		for (int i = 0; i < BufferHeight; i++) {
 			Graphics.DrawMesh(_mesh, transform.position, transform.rotation, _particleMaterial, 0, null, i);	
@@ -211,11 +232,18 @@ public class Emitter : MonoBehaviour {
 	}
 
 	void OnGUI(){
-		var rect = new Rect(0, 0, 64, 64);
-        Graphics.DrawTexture(rect, _particleBuffer, _debugMaterial) ;
+		if(debug){
+			var rect = new Rect(0, 0, 64, 64);
+        	Graphics.DrawTexture(rect, _particleBuffer, _debugMaterial) ;
 
-		rect = new Rect(64,0,64,64);
-		Graphics.DrawTexture(rect, spectrumBuffer, _debugSpectrumMaterial);
+			rect = new Rect(64,0,64,64);
+			Graphics.DrawTexture(rect, spectrumBuffer, _debugMaterial);
+		}
+		
+	}
+
+	void OnValidate(){
+		particleType = _particleType;
 	}
 
 	#endregion
