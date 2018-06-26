@@ -243,7 +243,7 @@ MonoBehaviour:
   noiseAmp: 0.27
   noiseAnim: 1
   debug: 0
-  _particleType: 1
+  _particleType: 0
   _kernelShader: {fileID: 4800000, guid: 961faab37f81427408382cf1700ff762, type: 3}
   _particleDotsShader: {fileID: 4800000, guid: 20b062b2c347f154e9ede9eb0fb68bfb, type: 3}
   _particleLinesShader: {fileID: 4800000, guid: ba14fa1a4c425406b99a1696cab21952,
