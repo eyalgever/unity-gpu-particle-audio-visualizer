@@ -124,6 +124,7 @@ GameObject:
   - component: {fileID: 930493964}
   - component: {fileID: 930493963}
   - component: {fileID: 930493962}
+  - component: {fileID: 930493966}
   m_Layer: 0
   m_Name: Emitter_line
   m_TagString: Untagged
@@ -152,7 +153,7 @@ AudioSource:
   m_Enabled: 1
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
-  m_audioClip: {fileID: 8300000, guid: d52dfac1e2032664e8edb8ed30888dd1, type: 3}
+  m_audioClip: {fileID: 8300000, guid: 1b356cdf9809ce240835570d1f68a510, type: 3}
   m_PlayOnAwake: 1
   m_Volume: 1
   m_Pitch: 1
@@ -238,11 +239,11 @@ MonoBehaviour:
   range: 50
   color: {r: 0.8986029, g: 0.9967451, b: 1.111, a: 1}
   pointSize: 0.012
-  noiseFreq: 0.18
-  noiseAmp: 0.45
+  noiseFreq: 0.075
+  noiseAmp: 0.27
   noiseAnim: 1
   debug: 0
-  _particleType: 0
+  _particleType: 1
   _kernelShader: {fileID: 4800000, guid: 961faab37f81427408382cf1700ff762, type: 3}
   _particleDotsShader: {fileID: 4800000, guid: 20b062b2c347f154e9ede9eb0fb68bfb, type: 3}
   _particleLinesShader: {fileID: 4800000, guid: ba14fa1a4c425406b99a1696cab21952,
@@ -261,6 +262,17 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &930493966
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 930493961}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0727d3d1850a59f4f88b618b9b9fd255, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &943476783
 GameObject:
   m_ObjectHideFlags: 0

@@ -34,22 +34,41 @@
 		return new_particle(i.uv);
 	}
 
+	float fbm3( float3 vec){
+		float val = 0;
+		float f = 1;
+		float p = 1;
+		val += abs(cnoise(float3(vec.x * p, vec.y * p , vec.z))) * f;
+		
+		f *= 0.5;
+		p *= 2;
+		val += abs(cnoise(float3(vec.x * p, vec.y * p , vec.z))) * f;
+
+		f *= 0.5;
+		p *= 2;
+		val += abs( cnoise(float3(vec.x * p, vec.y * p , vec.z))) * f;
+		
+		return val;
+	}
+
 
 	float4 frag_update(v2f_img i) : SV_Target
 	{	
 		float4 p = tex2D(_MainTex, i.uv); // xyz position, w velocity positive for upward
 
-		float noiseCurrentX = cnoise( float3( p.x * 2 * _NoiseParams.x  , p.z * 2.5 * _NoiseParams.x  , _TimeTotal * _NoiseParams.z) ) ;
-		float noiseCurrentY = cnoise( float3( p.x * _NoiseParams.x  , p.z * 1.25 * _NoiseParams.x  , _TimeTotal * _NoiseParams.z) ) ;
-		float noiseCurrentZ = cnoise( float3( p.x * 0.5 * _NoiseParams.x  , p.z * 0.625 * _NoiseParams.x  , _TimeTotal * _NoiseParams.z) ) ;
+		float noiseCurrentX = fbm3( float3( p.x * 2 * _NoiseParams.x  , p.z * 2.5 * _NoiseParams.x  , _TimeTotal * _NoiseParams.z) ) ;
+		
+		float noiseCurrentY = fbm3( float3( p.x * 2 * _NoiseParams.x  , p.z * 5 * _NoiseParams.x  , _TimeTotal * _NoiseParams.z) ) ;	
+		float noiseCurrentZ = fbm3( float3( p.x * 0.5 * _NoiseParams.x  , p.z * 0.625 * _NoiseParams.x  , _TimeTotal * _NoiseParams.z) ) ;
+		
+		p.y += abs( noiseCurrentX ) * _Freq.x  * _NoiseParams.y ;
+		p.y += abs( noiseCurrentY ) * _Freq.y  * _NoiseParams.y * 3.0;		
+		p.y += abs( noiseCurrentZ ) * _Freq.z  * _NoiseParams.y * 1.5;
+		
 
-		p.y += abs( noiseCurrentX ) * _Freq.x  * _NoiseParams.y;
-		p.y += abs( noiseCurrentY ) * _Freq.y  * _NoiseParams.y;
-		p.y += abs( noiseCurrentZ ) * _Freq.z  * _NoiseParams.y;
-
-		// p.w += abs( noiseCurrentX ) * _Freq.x * _TimeSpan  * _NoiseParams.y ;
-		// p.w += abs( noiseCurrentY ) * _Freq.y * _TimeSpan  * _NoiseParams.y ;
-		// p.w += abs( noiseCurrentZ ) * _Freq.z * _TimeSpan  * _NoiseParams.y ;
+		//p.w += abs( noiseCurrentX ) * _Freq.x * _TimeSpan  * _NoiseParams.y ;
+		//p.w += abs( noiseCurrentY ) * _Freq.y * _TimeSpan  * _NoiseParams.y ;
+		//p.w += abs( noiseCurrentZ ) * _Freq.z * _TimeSpan  * _NoiseParams.y ;
 		
 
 		float gravity = 9.8;		
